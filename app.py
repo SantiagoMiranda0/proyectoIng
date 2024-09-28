@@ -29,6 +29,12 @@ async def print_tableros():
     
     return operation.get_boards()
 
+@app.get("/tableros/{game_id}")
+async def print_tablero_by_id(game_id : int):
+    operation = Operations()
+
+    return operation.get_board_by_id(game_id=game_id)
+
 
 
 @app.post("/gamelist")

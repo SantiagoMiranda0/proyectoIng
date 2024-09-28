@@ -108,6 +108,27 @@ class Operations:
         finally:
             session.close()
 
+    def get_board_by_id(self, game_id: int):
+
+        session = Session()
+        try:
+            game = session.query(Game).filter(Game.id_partida == game_id).first()
+            if game is None:
+                return {"error": "Partida no encontrada"}
+
+            # Si la partida no tiene tablero
+            if game.tablero is None:
+                return {"error": "La partida no tiene un tablero asignado"}
+
+            tablero = game.tablero
+            
+            tablero.casillas = tablero.casillas
+
+
+            return tablero
+        finally:
+            session.close()
+
 
     async def create_game(self,name: str, cant_players: int, private: bool, password: str):
         # Crear una sesión de la base de datos
