@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, WebSocket, WebSocketDisconnect
 from sqlalchemy.exc import NoResultFound
-from operations import Operations, GameNotFoundError, PlayerNotFoundError, GameStartedError, ConnectionManager
+from operations import Operations, GameNotFoundError, PlayerNotFoundError, GameStartedError, manager, ConnectionManager
 
 from enum import Enum
 from typing import List
@@ -34,8 +34,13 @@ async def print_tableros():
 @app.post("/gamelist")
 async def create_game(name: str, cant_players: int, private: bool, password: str):
     operation = Operations()
+    new_id = await operation.create_game(name=name,cant_players=cant_players,private=private,password=password)
 
-    return operation.create_game(name=name,cant_players=cant_players,private=private,password=password)
+    return {
+                'id': new_id,
+                'name': name,
+                'operation_result': "Successfully created!"
+            }
 
 
 
@@ -44,8 +49,13 @@ async def create_game(name: str, cant_players: int, private: bool, password: str
 async def join_game(game_id: int, player_id: int):
     operation = Operations()
     try:
+        player_id = await operation.join_game(game_id=game_id, player_id=player_id)
 
-        return operation.join_game(game_id=game_id, player_id=player_id)
+        return {
+                'id_player ': player_id,
+                'id_partida': game_id,
+                'operation_result': "Successfully joined!"
+            }
 
     except GameNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))

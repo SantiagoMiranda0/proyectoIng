@@ -109,7 +109,7 @@ class Operations:
             session.close()
 
 
-    def create_game(self,name: str, cant_players: int, private: bool, password: str):
+    async def create_game(self,name: str, cant_players: int, private: bool, password: str):
         # Crear una sesión de la base de datos
         session = Session()
         try:
@@ -131,21 +131,17 @@ class Operations:
             session.refresh(new_game_entry)
 
             # Enviar una señal por WebSocket a todos los clientes conectados
-            manager.broadcast("new game created")
+            await manager.broadcast("new game created")
 
             # Devolver el ID y el nombre del juego recién creado
-            return {
-                'id': new_game_entry.id_partida,
-                'name': new_game_entry.name,
-                'operation_result': "Successfully created!"
-            }
+            return new_game_entry.id_partida
 
         finally:
             # Cerrar la sesión para liberar los recursos
             session.close()
 
 
-    def join_game(self,game_id: int, player_id: int):
+    async def join_game(self,game_id: int, player_id: int):
             # Crear una sesión de la base de datos
         session = Session()
         
@@ -172,10 +168,10 @@ class Operations:
             session.commit()  # ¡IMPORTANTE! Guardar los cambios en la base de datos.
                     
             # Notificar que un jugador se unió
-            manager.broadcast("player join")
+            await manager.broadcast("player join")
 
             # Devolver respuesta exitosa
-            return {"message": f"Player {player_id} successfully joined game {game_id}"}
+            return new_player.id_jugador
 
         finally:
             session.close()  # Cerrar la sesión para liberar recursos
